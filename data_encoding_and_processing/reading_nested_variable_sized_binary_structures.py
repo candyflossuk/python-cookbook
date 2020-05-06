@@ -313,3 +313,66 @@ phead = PolyHeader.from_file(f)
 phead.num_polys
 polydata = [SizedRecord.from_file(f, "<i") for n in range(phead.num_polys)]
 polydata
+
+# To interpret the contents of theSizedRecord instances use iter_as() method
+for n, poly in enumerate(polydata):
+    print("Polygon", n)
+    for p in poly.iter_as("<dd"):
+        print(p)
+
+for n, poly in enumerate(polydata):
+    print("Polygon", n)
+    for p in poly.iter_as(Point):
+        print(p.x, p.y)
+
+# putting the above together - here is a read_polys() function
+
+
+class Point(Structure):
+    _fields_ = [("<d", "x"), ("d", "y")]
+
+
+class PolyHeader(Structure):
+    _fields_ = [("<i", "file_code"), (Point, "min"), (Point, "max"), ("i", "num_polys")]
+
+
+def read_polys(filename):
+    polys = []
+    with open(filename, "rb") as f:
+        phead = PolyHeader.from_file(f)
+        for n in range(phead.num_polys):
+            rec = SizedRecord.from_file(f, "<i")
+            poly = [(p.x, p.y) for p in rec.iter_as(Point)]
+            polys.append(poly)
+    return polys
+
+
+"""
+This implementation is strong based on the idea of lazy-unpacking. When an instance of Structure is 
+created, the __init__() merely creates a memoryview of the supplied byte data and does nothing else.
+
+No unpacking or other structure related operations take place at this time. One motivation
+for taking this approach is that you may only be interested in small parts of the binary structure.
+This allows you to only access the parts of the structure that you need to
+
+To achieve this the StructField descriptor class is used. Each attribute the user lists
+in _fields_ gets converted to a StructField descriptor that stores the associated structure format code and
+byte offset into the stored buffer. 
+
+The StructureMeta metaclass is what creates these descriptors automatically when various structure classes are 
+defined. The main reason for using a metaclass is to make it easy for a user to specify a structure format
+with a high level description without worrying about low level details.
+
+A subtle aspect of the StructureMeta metaclass is that it makes byte order sticky. That is, if any attribute 
+specifies a byte order (< for little endian or > big endian) that ordering applies to all fields that follow. This 
+avoids extra typing but also makes it possible to switch in the middle of a definition.
+
+The use of a memoryview() avoids memory copies. When structures start to nest, memoryviews can be used to overlay 
+different parts of the structure definition on the same region of memory. This is subtle but concerns the slicing
+behaviour of a memoryview verus byte array. 
+
+Slicing byte array - gets a copy of data - with memory view slices overlay the existing memory - thus
+it is more efficient.
+
+
+"""
