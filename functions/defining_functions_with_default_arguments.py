@@ -18,14 +18,17 @@ def spam(a, b=None):
 
 # If instead of a defaul tvalue , you want to test an optional argument was given an interesting value or not use this
 _no_value = object()
+
+
 def spam(a, b=_no_value):
     if b is _no_value:
-    print('No b value supplied')
+        print("No b value supplied")
+
 
 # Here is how this behaves
-spam(1) # No b value supplied
-spam(1, 2) # b = 2
-spam(1, None) # b = None
+spam(1)  # No b value supplied
+spam(1, 2)  # b = 2
+spam(1, None)  # b = None
 
 # There is a distinction between not passing a value and None
 
@@ -35,14 +38,17 @@ Some nuance:
 Values are bound only at the time of function definition i.e
 """
 x = 42
+
+
 def spam(a, b=x):
-    print(a,b)
+    print(a, b)
+
 
 spam(1)
 # 1, 42
 
 x = 23
-spam(1) # Has no effect - the value is fixed at function definition time
+spam(1)  # Has no effect - the value is fixed at function definition time
 # 1, 42
 
 """
@@ -51,14 +57,18 @@ More nuance -
 Values assigned as defaults should always be immutable objects, such as None, True, False, numbers or strings
 i.e never write code like this
 """
+
+
 def spam(a, b=[]):
-    print('NOOOOOOOO')
+    print("NOOOOOOOO")
+
 
 # This will cause issues - if the default value ever escapes the function and gets modified -
 # such changes alter the default value across future calls
 def spam(a, b=[]):
     print(b)
     return b
+
 
 x = spam(1)
 x
@@ -75,9 +85,12 @@ A better pattern is to assign None as a default and add a check inside the funct
 
 The use of the is operator when testing for None is important
 """
+
+
 def spam(a, b=None):
-    if not b: # DO NOT DO THIS use 'if b is None'
+    if not b:  # DO NOT DO THIS use 'if b is None'
         b = []
+
 
 # None does evaluate to False, but so do many other objects
 
