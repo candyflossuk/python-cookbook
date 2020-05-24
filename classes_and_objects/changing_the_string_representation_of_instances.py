@@ -5,16 +5,18 @@ instances to something more sensible
 To do this change the string representation of an instance,
 define __str__() and __repr__()
 """
+
+
 class Pair:
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
     def __repr__(self):
-        return 'Pair({0.x!r}, {0,y!r})'.format(self)
+        return "Pair({0.x!r}, {0,y!r})".format(self)
 
     def __str__(self):
-        return '({0.x!s}, {0.y!s})'.format(self)
+        return "({0.x!s}, {0.y!s})".format(self)
 
 
 """
@@ -40,7 +42,7 @@ text such that eval(rer(x)) == x if that is not possible or desired
 then it is common to create a useful textual representation enclosed in <
 and > instead for example
 """
-f = open('file.dat')
+f = open("file.dat")
 f
 
 """
@@ -49,10 +51,12 @@ f
 The use of format() in the solution looks odd, but {0.x} specifies the 
 x-attribute argument 0. So in the following function, the 0 is actually the instance self
 """
+
+
 def __repr__(self):
-    return 'Pair({0.x!r}, {0.y!r})'.format(self)
+    return "Pair({0.x!r}, {0.y!r})".format(self)
+
 
 # As an alternative to this implementation you could use the % operator
 def __repr__(self):
-    return 'Pair(%r, %r)' % (self.x, self.y)
-
+    return "Pair(%r, %r)" % (self.x, self.y)

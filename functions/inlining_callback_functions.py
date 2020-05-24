@@ -44,16 +44,18 @@ def inlined_async(func):
 def add(x, y):
     return x + y
 
+
 @inlined_async
 def test():
-    r = yield Async(add, (2,3))
+    r = yield Async(add, (2, 3))
     print(r)
-    r = yield Async(add, ('hello', 'world'))
+    r = yield Async(add, ("hello", "world"))
     print(r)
     for n in range(10):
-        r = yield Async(add, (n,n))
+        r = yield Async(add, (n, n))
         print(r)
-    print('Goodbye')
+    print("Goodbye")
+
 
 # Apart from the special decorator - and yield no callback functions appear anywhere
 
@@ -89,8 +91,9 @@ If your doubtful that anything like this works - you can try it with the multipr
 library and have async operations executed in separate processes
 """
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import multiprocessing
+
     pool = multiprocessing.Pool()
     apply_async = pool.apply_async
 

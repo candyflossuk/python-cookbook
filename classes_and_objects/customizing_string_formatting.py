@@ -6,10 +6,11 @@ method
 To do this define the __format__() method on a class.
 """
 _formats = {
-    'ymd': '{d.year}-{d.month}-{d.day}',
-    'mdy': '{d.month}/{d.day}/{d.year}',
-    'dmy': '{d.day}/{d.month}/{d.year}'
+    "ymd": "{d.year}-{d.month}-{d.day}",
+    "mdy": "{d.month}/{d.day}/{d.year}",
+    "dmy": "{d.day}/{d.month}/{d.year}",
 }
+
 
 class Date:
     def __init__(self, year, month, day):
@@ -18,17 +19,18 @@ class Date:
         self.day = day
 
     def __format__(self, code):
-        if code == '':
-            code = 'ymd'
+        if code == "":
+            code = "ymd"
         fmt = _formats[code]
-        return fmt.format(d = self)
+        return fmt.format(d=self)
+
 
 # Instances of the Date class now support formatting operations
 # Run in Python console
 d = Date(2012, 12, 21)
 format(d)
-format(d, 'mdy')
-'The date is {:ymd}'.format(d)
+format(d, "mdy")
+"The date is {:ymd}".format(d)
 'The date is {"mdy}'.format(d)
 
 """
