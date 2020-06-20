@@ -24,3 +24,8 @@ class Date:
 # To use this you can use
 a = Date(2012, 12, 21)  # Primary
 b = Date.today()  # Alternate
+
+
+"""
+This can lead to code that is hard to understand and difficult and maintain. 
+"""
