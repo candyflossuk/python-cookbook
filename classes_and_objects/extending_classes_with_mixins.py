@@ -15,6 +15,8 @@ classes offer some valuable functionality.
 
 See below for an example...
 """
+from collections import defaultdict
+from collections import OrderedDict
 
 
 class LoggedMappingMixin:
@@ -35,3 +37,70 @@ class LoggedMappingMixin:
     def __delitem__(self, key):
         print("Deleting " + str(key))
         return super().__delitem__(key)
+
+
+class SetOnceMappingMixin:
+    """
+    Only allow a key to be set once
+    """
+
+    __slots__ = ()
+
+    def __setitem__(self, key, value):
+        if key in self:
+            raise KeyError(str(key) + " already set")
+        return super().__setitem__(key, value)
+
+
+class StringKeysMappingMixin:
+    """
+    Restrict keys to strings only
+    """
+
+    __slots__ = ()
+
+    def __setitem__(self, key, value):
+        if not isinstance(key, str):
+            raise TypeError("keys must be strings")
+        return super().__setitem__(key, value)
+
+
+"""
+By themselves these classes are useless. They are supposed 
+to be mixed with other mapping classes through multiple inheritance.
+"""
+
+
+class LoggedDict(LoggedMappingMixin, dict):
+    pass
+
+
+d = LoggedDict()
+d["x"] = 23
+d["x"]
+
+
+class SetOnceDefaultDict(SetOnceMappingMixin, defaultdict):
+    pass
+
+
+d = SetOnceDefaultDict(list)
+d["x"].append(2)
+
+
+class StringOrderedDict(StringKeysMappingMixin, SetOnceMappingMixin, OrderedDict):
+    pass
+
+
+"""
+Some details:
+
+Mixin classes are never meant to be instantiated directly
+
+Mixin classes typically have no state of their own
+
+USe of super() is essential to writing mixin classes. Using
+super() delegates to the next class on the method resolution order.
+The order in the mixin definition is important - and the order the 
+mixins are called to check for implementations 
+"""
