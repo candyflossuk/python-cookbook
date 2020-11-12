@@ -70,7 +70,8 @@ class NodeVisitor:
         raise RuntimeError("No {} method".format("visit_" + type(node).__name))
 
 
-# To use - inherit from NodeVisitor and implement methods of the form visit_Name() where name is substituted by node type
+# To use - inherit from NodeVisitor and implement methods of the form visit_Name()
+# where name is substituted by node type
 
 
 class Evaluator(NodeVisitor):
@@ -96,3 +97,63 @@ class Evaluator(NodeVisitor):
 # Here is how you use this
 e = Evaluator()
 e.visit(t4)  # 0.6
+
+
+# Another example of this can be demonstrated using a stack machinke
+
+
+class StackCode(NodeVisitor):
+    def generate_code(self, node):
+        self.instructions = []
+        self.visit(node)
+        return self.instructions
+
+    def visit_Number(self, node):
+        self.instructions.append(("PUSH", node.value))
+
+    def binop(self, node, instruction):
+        self.visit(node.left)
+        self.visit(node.right)
+        self.instructions.append((instruction,))
+
+    def visit_Add(self, node):
+        self.binop(node, "ADD")
+
+    def vist_Sub(self, node):
+        self.binop(node, "SUB")
+
+    def visit_Mul(self, node):
+        self.binop(node, "MUL")
+
+    def visit_Div(self, node):
+        self.binop(node, "DIV")
+
+    def unaryop(self, node, instruction):
+        self.visit(node.operand)
+        self.instructions.append((instruction,))
+
+    def visit_Negate(self, node):
+        self.unaryop(node, "NEG")
+
+
+# Example usage
+s = StackCode()
+s.generate_code(t4)
+
+"""
+The two key ideas here are:
+Design strategy where code that manipulates a complicated data structure is decoupled from the data structure.
+Data manipulation is not done by Node classes but by NodeVisitor classes. This makes the code very generic
+
+Implementation of the visitor class - dispatch to different handling method based on a value 
+(in this case the node type).
+
+The pattern of recursive calls to visit() is often seen in emulating switch and case statements.
+
+The visitors weakness is the heavy reliance on recursion. Deeply nested structures can hit Pythons
+recursion depth limit. To avoid this you can use different data structures (i.e lists instead of linked lists). Or 
+make the structure more shallow. Nonrecursive traversal using generators or indicators can also help solve 
+the problem discussed here.
+
+The pattern is commonly used in parsing and compiling. Pythons ast module uses it.
+"""
