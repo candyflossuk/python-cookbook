@@ -66,3 +66,30 @@ class Evaluator(NodeVisitor):
 
     def visit_Negate(self, node):
         yield -(yield node.operand)
+
+
+"""
+In the above example it is shown how generators and co routines can manipulate control flow to create 
+more performant code.
+
+Where you are doing tree traversal a strategy to avoid recursion is to use a stack or queue. 
+Depth first traversal can be implemented by pushing nodes onto a stack and popping them 
+off when finished.
+The stack will be as large as the tree.
+
+When yield is encountered - the behaviour of the generator is to emit and suspend.
+
+Therefore instead of writing
+value = self.visit(node.left)
+
+You write:
+value = yield node.left
+
+This sends the node in question to the visit() method. This carries out the execution. Instead of 
+calling visit() recursively the yield statement temporarily backs out of the computation progress. 
+This is a signal that tells the algorithm that the yielded node needs to be process before proceeding.
+
+When generators are used - you cannot use return statements to emit values. Instead yield covers this off.
+
+
+"""
