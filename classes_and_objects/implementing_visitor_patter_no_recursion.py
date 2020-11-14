@@ -90,6 +90,4 @@ calling visit() recursively the yield statement temporarily backs out of the com
 This is a signal that tells the algorithm that the yielded node needs to be process before proceeding.
 
 When generators are used - you cannot use return statements to emit values. Instead yield covers this off.
-
-
 """
