@@ -72,6 +72,6 @@ that gets attached to the wrapper attributes.
 Each accessor allows internal params to be adjusted through the use of nonlocal
 assignments
 
-A nice feature is that accessor functions will propoagete through multiple levels
+A nice feature is that accessor functions will propogate through multiple levels
 of decoration (if they use @functools.wraps).
 """
