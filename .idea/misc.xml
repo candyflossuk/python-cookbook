@@ -3,5 +3,8 @@
   <component name="JavaScriptSettings">
     <option name="languageLevel" value="ES6" />
   </component>
+  <component name="ProjectPlainTextFileTypeManager">
+    <file url="file://$PROJECT_DIR$/metaprogramming/writing_decorators_that_add_arguments_to_wrapped_functions.py" />
+  </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.7 (python-cookbook)" project-jdk-type="Python SDK" />
 </project>
