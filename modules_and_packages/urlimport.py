@@ -151,3 +151,57 @@ class UrlModuleLoader(importlib.abc.SourceLoader):
 
     def is_package(self, fullname: str) -> bool:
         return False
+
+
+# Package Loader for a URL
+class UrlPackageLoader(UrlModuleLoader):
+    def load_module(self, fullname: str):
+        mod = super().load_module(fullname)
+        mod.__path__ = [self._baseurl]
+        mod.__package__ = fullname
+
+    def get_filename(self, fullname: str):
+        return self._baseurl + "/" + "__init__.py"
+
+    def is_package(self, fullname: str) -> bool:
+        return True
+
+
+# Utility functions for installing/uninstalling the loader
+_installed_meta_cache = {}
+
+
+def install_meta(address):
+    if address not in _installed_meta_cache:
+        finder = UrlMetaFinder(address)
+        _installed_meta_cache[address] = finder
+        sys.meta_path.append(finder)
+        log.debug("%r installed on sys.meta_path", finder)
+
+
+def remove_meta(address):
+    if address in _installed_meta_cache:
+        finder = _installed_meta_cache.pop(address)
+        sys.meta_path.remove(finder)
+        log.debug("%r removed from sys.meta.path", finder)
+
+
+"""
+Usage:
+
+import fib # will fail
+
+import urlimport
+urlimport.install_meta('http://localhost:15000')
+import fib
+import spam
+import grok.blah
+grok.blah.__file__
+
+
+So what is this doing?
+We are installing an instance of a special finder object called UrlMetaFinder
+in the last entry in sys.meta_path. When modules are imported the finders in sys.meta_path
+are consulted in order to locate the module.
+
+"""
