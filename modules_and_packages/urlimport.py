@@ -204,4 +204,49 @@ We are installing an instance of a special finder object called UrlMetaFinder
 in the last entry in sys.meta_path. When modules are imported the finders in sys.meta_path
 are consulted in order to locate the module.
 
+Another approach is to write a hook that plugs directly into sys.path variable recognizing
+certain directory patterns
 """
+
+
+class UrlPathFinder(importlib.abc.PathEntryFinder):
+    def __init__(self, baseurl):
+        self._links = None
+        self._loader = UrlModuleLoader(baseurl)
+        self._baseurl = baseurl
+
+    def find_loader(self, fullname):
+        log.debug("find_loader: %r", fullname)
+        parts = fullname.split(".")
+        basename = parts[-1]
+        # Check link cache
+        if self._links is None:
+            self._links = []
+            self._links = _get_links(self._baseurl)
+
+        # Check if it's a package
+        if basename in self._links:
+            log.debug("find_loader: trying package %r", fullname)
+            fullurl = self._baseurl + "/" + basename
+            # Attempt to load the package
+            loader = UrlPackageLoader(fullurl)
+            try:
+                loader.load_module(fullname)
+                log.debug("find_loader: package %r loaded", fullname)
+            except ImportError as e:
+                log.debug("find_loader: %r is a namespace package", fullname)
+                loader = None
+            return (loader, [fullurl])
+
+        # A normal module
+        filename = basename + ".py"
+        if filename in self._links:
+            log.debug("find_loader: module %r found", fullname)
+            return (self._loader, [])
+        else:
+            log.debug("find_loader: module %r not found", fullname)
+            return (None, [])
+
+    def invalidate_caches(self) -> None:
+        log.debug("invalidating link cache")
+        self._links = None
