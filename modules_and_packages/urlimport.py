@@ -250,3 +250,60 @@ class UrlPathFinder(importlib.abc.PathEntryFinder):
     def invalidate_caches(self) -> None:
         log.debug("invalidating link cache")
         self._links = None
+
+
+# Check path to see if it looks like a URL
+_url_path_cache = {}
+
+
+def handle_url(path):
+    if path.startswith(("http://", "https://")):
+        log.debug("Handle path? %s. [Yes]", path)
+        if path in _url_path_cache:
+            finder = _url_path_cache[path]
+        else:
+            finder = UrlPathFinder(path)
+            _url_path_cache[path] = finder
+        return finder
+    else:
+        log.debug("Handle path? %s. [No]", path)
+
+
+def install_path_hook():
+    sys.path_hooks.append(handle_url)
+    sys.path_importer_cache.clear()
+    log.debug("Installing handle_url")
+
+
+def remove_path_hook():
+    sys.path_hooks.remove(handle_url)
+    sys.path_importer_cache.clear()
+    log.debug("Removing handle url")
+
+
+"""
+Usage:
+To use this add URLs to sys.path
+
+# Install path hook
+import urlimport
+urlimport.install_path_hook()
+
+# Imports still fail
+import sys
+sys.path.append('htpp://localhost:15000')
+
+import fib # << this works now
+import grok.blah
+
+The key to this example is handle_url() which is added to sys.path_hooks.
+When the entries on sys.path are being processed, the functions in sys.path_hooks
+are invoked. If any of those functions return a finder object, that finder is 
+used to try and load modules.
+Remotely imported modules will work the same way.
+
+Read importlib module documentation and PEP 302 
+
+
+
+"""
