@@ -10,6 +10,7 @@ from socketserver import (
     StreamRequestHandler,
     ThreadingTCPServer,
 )
+from socket import socket, AF_INET, SOCK_STREAM
 
 
 class EchoHandler(BaseRequestHandler):
@@ -22,9 +23,9 @@ class EchoHandler(BaseRequestHandler):
             self.request.send(msg)
 
 
-if __name__ == "__main__":
+"""if __name__ == "__main__":
     serv = TCPServer(("", 20000), EchoHandler)
-    serv.serve_forever()
+    serv.serve_forever()"""
 
 """
 Usage:
@@ -76,4 +77,29 @@ if __name__ == '__main__':
         t.daemon = True
         t.start()
     serv.serve_forever()
+    
+The example below shows how to implement a web server using the socket library
 """
+
+
+def echo_handler(address, client_sock):
+    print("Got connection from {}".format(address))
+    while True:
+        msg = client_sock.recv(8192)
+        if not msg:
+            break
+        client_sock.sendall(msg)
+    client_sock.close()
+
+
+def echo_server(address, backlog=5):
+    sock = socket(AF_INET, SOCK_STREAM)
+    sock.bind(address)
+    sock.listen(backlog)
+    while True:
+        client_sock, client_addr = sock.accept()
+        echo_handler(client_addr, client_sock)
+
+
+if __name__ == "__main__":
+    echo_server(("", 20000))
